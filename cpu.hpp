@@ -49,6 +49,7 @@ class Program {
     public:
     std::vector<Instruction> progVec;
     Program(void);
+    Instruction& operator[](unsigned int index);
     ui8 size(void);
     void addInstr(const Opcode op, const b4 param);
 };

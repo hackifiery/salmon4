@@ -33,6 +33,9 @@ void Program::addInstr(const Opcode op, const b4 param) {
     assert(progVec.size() < PROG_MEM); // ensure we don't overflow program memory
     progVec.push_back(Instruction(op, param));
 }
+Instruction& Program::operator[](unsigned int index) {
+    return progVec[index];
+}
 ui8 Program::size(void) {
     assert(progVec.size() <= PROG_MEM);
     return progVec.size();
@@ -42,6 +45,6 @@ Cpu::Cpu(void) : ram({0}), rom({0}), pc(0), cf(false), acc(0) {}
 void Cpu::loadProg(Program prog) {
     assert(prog.size() <= PROG_MEM); // ensure program fits rom
     for (ui8 i = 0; i < prog.size(); ++i) {
-        rom[i] = prog.progVec[i].instrToMem();
+        rom[i] = prog[i].instrToMem();
     }
 }
