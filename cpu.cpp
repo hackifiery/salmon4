@@ -18,12 +18,12 @@ b8 Instruction::instrToMem(void) {
     assert(arg < 16); // must fit in 4 bits
 
     b4 msb(opcode); // opcode
-    b4 lsb(arg);    // parameter
+    b4 lsb(arg); // parameter
     b8 out;
 
     for (int i = 0; i < 4; ++i) {
         out.set(i + 4, msb[i]); // opcode -> upper nibble (bits 4..7)
-        out.set(i,      lsb[i]); // param  -> lower nibble (bits 0..3)
+        out.set(i, lsb[i]); // param -> lower nibble (bits 0..3)
     }
     return out;
 }
