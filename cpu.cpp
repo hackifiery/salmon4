@@ -13,24 +13,24 @@ template <size_t N> bitset<N> initBitset(ull val) {
 Instruction::Instruction(const Opcode op, const b4 param) : op(op), param(param) {}
 b8 Instruction::instrToMem(void) {
     ull opcode = static_cast<ull>(op);
-    assert(opcode < 16 && opcode >= 0);
+    assert(opcode < 16); // must fit in 4 bits
     ull arg = static_cast<ull>(param);
-    assert(arg <= 16 && arg >= 0);
+    assert(arg < 16); // must fit in 4 bits
 
     b4 msb(opcode); // opcode
-    b4 lsb(arg); // parameter
+    b4 lsb(arg);    // parameter
     b8 out;
 
-    for (int pos = 0; pos < 8; pos++) {
-        if (pos <= 3) out.set(pos, msb[pos]);
-        else out.set(pos - 4, lsb[pos - 4]);
+    for (int i = 0; i < 4; ++i) {
+        out.set(i + 4, msb[i]); // opcode -> upper nibble (bits 4..7)
+        out.set(i,      lsb[i]); // param  -> lower nibble (bits 0..3)
     }
     return out;
 }
 
 Program::Program(void) {}
 void Program::addInstr(const Opcode op, const b4 param) {
-    // TODO: add assert here
+    assert(progVec.size() < PROG_MEM); // ensure we don't overflow program memory
     progVec.push_back(Instruction(op, param));
 }
 ui8 Program::size(void) {
@@ -40,7 +40,8 @@ ui8 Program::size(void) {
 
 Cpu::Cpu(void) : ram({0}), rom({0}), pc(0), cf(false), acc(0) {}
 void Cpu::loadProg(Program prog) {
-    for (int i = 0; i < prog.size(); i++) {
+    assert(prog.size() <= PROG_MEM); // ensure program fits rom
+    for (ui8 i = 0; i < prog.size(); ++i) {
         rom[i] = prog.progVec[i].instrToMem();
     }
 }
