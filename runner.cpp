@@ -4,29 +4,28 @@
 #include <vector>
 #include <string>
 #include <sstream>
-#include <iostream>
-#include <iterator>
 
 #include "cpu.hpp"
 
 using namespace std;
 
 int main(int argc, char* argv[]) {
-    vector<char> raw;
     assert(argc == 2);
-    ifstream f(argv[1]);
+    ifstream f(argv[1], ios::binary);
+    if (!f) return 2;
+
+    vector<ui8> bytes;
     char ch;
     while (f.get(ch)) {
-        raw.push_back(static_cast<ui8>(ch) & 0x0F);
+        bytes.push_back(static_cast<ui8>(static_cast<char>(ch)));
     }
+
     Cpu cpu = Cpu();
-    for (int i = 0; i < raw.size(); i+=2) {
-        if (i+1 < raw.size()) {
-            cpu.rom[i/2] = (raw[i] << 4) | raw[i+1];
-        }
+    for (int i = 0; i < bytes.size(); i++) {
+        assert(i < MEM);
+        cpu.rom[i] = bytes[i];
     }
-    for (int i = 0; i < MEM/2; i++) {
-        cpu.step();
-    }
+
+    cpu.run(true);
     return 0;
 }

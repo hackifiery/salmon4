@@ -81,6 +81,7 @@ public:
     ui16 pc;    // Program Counter (12-bit)
     std::stack<uint16_t> callStk;
 
-    bool step();    // Execute one instruction; returns false if a HALT occurred
-
-};
+    bool step();
+    void run(bool verbose = false);
+    // debugging helpers
+    void printState() const;};

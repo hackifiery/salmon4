@@ -1,6 +1,7 @@
 #include "cpu.hpp"
 #include <stdexcept>
 #include <cassert>
+#include <iostream>
 
 using namespace std;
 
@@ -153,4 +154,26 @@ bool Cpu::step() {
     pc += 2; // 2 bytes
     #undef JUMP_TO
     return true;
+}
+
+void Cpu::printState() const {
+    cout << "PC=" << pc << " ACC=" << (int)acc
+         << " CF=" << cf << " ADDRL=" << addrLatch << "\n";
+    cout << "REGS:";
+    for (int i = 0; i < NUM_REGS; ++i) {
+        cout << " " << i << "=" << (int)regs[i];
+    }
+    cout << "\n\n";
+}
+
+void Cpu::run(bool verbose) {
+    bool cont = true;
+    while (cont) {
+        if (verbose) printState();
+        cont = step();
+    }
+    if (verbose) {
+        cout << "-- halted --\n";
+        printState();
+    }
 }

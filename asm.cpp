@@ -5,6 +5,8 @@
 #include <sstream>
 #include <map>
 #include <stdexcept>
+#include <array>
+#include <ios>
 
 #include "cpu.hpp"
 
@@ -65,15 +67,20 @@ static vector<string> splitStr(const string& str) {
 }
 
 int main(int argc, char* argv[]) {
-    assert(argc == 2);
+    assert(argc == 2 | argc == 3);
+
+    string fname = "";
+    if (argc == 2) fname = "a.out";
+    else fname = argv[2];
 
     map<string, ui16> labels;
     vector<string> lines;
     vector<vector<string>> split;
-    vector<vector<ui8>> parsed;
+    vector<array<ui8, 4>> parsed;
     
-    ifstream f(argv[1]);
-    unsigned int virtPC = 0; // simulated PC for labels
+    ifstream f(argv[1], ios::binary);
+    ofstream o(fname, ios::binary);
+    unsigned int virtPC = 0; // Simulated PC for labels
 
     string str;
     while (getline(f, str)) {
@@ -88,7 +95,6 @@ int main(int argc, char* argv[]) {
 
     for (string i : lines) split.push_back(splitStr(i));
 
-    // Parse instructions: convert to nibbles
     for (vector<string> i : split) {
         string opStr = i[0];
         bool ext = false;
@@ -108,41 +114,41 @@ int main(int argc, char* argv[]) {
         }
         
         if (!ext) {
-            // Regular instruction: [opcode, upper_nibble, mid_nibble, lower_nibble]
+            // Regular instruction: [opcode:4, upper:4, mid:4, lower:4]
             ui8 opNum = static_cast<ui8>(op);
             ui8 u = 0, m = 0, l = 0;
             assert(i.size() == 2 || i.size() == 4);
             if (i.size() == 2) {
-                // Single 12-bit argument
+                // Case 1: single 12-bit arg (opcode:4, arg:12)
                 ui16 tmp = stoi(i[1]);
                 l = tmp & 0x0F;
                 m = (tmp >> 4) & 0x0F;
                 u = (tmp >> 8) & 0x0F;
             }
             else {
-                // Three separate 4-bit arguments
+                // Case 2: 3 4-bit args (opcode:4, arg1:4, arg2:4, arg3:4)
                 u = stoi(i[1]);
                 m = stoi(i[2]);
                 l = stoi(i[3]);
             }
             parsed.push_back({opNum, u, m, l});
         } else {
-            // Extended instruction: [EXT, ext_opcode, param_high, param_low]
+            // Extended instruction: [EXT (0xFF):4, ext_opcode:4, high:4, low:4]
             ui8 eOpNum = static_cast<ui8>(eop);
             
             if (i.size() == 1) {
-                // Type 1: No argument
+                // Case 1: no arg (EXT:4, ext_opcode:4)
                 parsed.push_back({static_cast<ui8>(EXT), eOpNum, 0, 0});
             } 
             else if (i.size() == 2) {
-                // Type 2: One 8-bit parameter (or no arg treated as 0)
+                // Case 2: single 8-bit param (EXT:4, ext_opcode:4, arg:8)
                 ui16 tmp = stoi(i[1]);
-                ui8 high = (tmp >> 4) & 0x0F;
-                ui8 low = tmp & 0x0F;
-                parsed.push_back({static_cast<ui8>(EXT), eOpNum, high, low});
+                ui8 h = (tmp >> 4) & 0x0F;
+                ui8 l = tmp & 0x0F;
+                parsed.push_back({static_cast<ui8>(EXT), eOpNum, h, l});
             } 
             else if (i.size() == 3) {
-                // Type 3: Two 4-bit parameters
+                // Case 3: 2 4-bit params (EXT:4, ext_opcode:4, arg1:4, arg2:4)
                 ui8 arg1 = stoi(i[1]);
                 ui8 arg2 = stoi(i[2]);
                 parsed.push_back({static_cast<ui8>(EXT), eOpNum, arg1, arg2});
@@ -150,13 +156,24 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // Output as hex nibbles
+
+    /* debug
     for (auto& instr : parsed) {
         for (ui8 nibble : instr) {
             cout << hex << (int)nibble << " ";
         }
     }
-    cout << endl;
+    cout << endl;*/
+
+    for (array<ui8, 4> i : parsed) {
+        ui8 byte1 = static_cast<ui8>(((i[0] & 0x0F) << 4) | (i[1] & 0x0F));
+        ui8 byte2 = static_cast<ui8>(((i[2] & 0x0F) << 4) | (i[3] & 0x0F));
+        o << static_cast<char>(byte1);
+        o << static_cast<char>(byte2);
+    }
+
+    o.close();
+    f.close();
 
     return 0;
 }
