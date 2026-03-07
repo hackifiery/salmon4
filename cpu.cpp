@@ -33,7 +33,7 @@ Cpu::Cpu() : acc(0), cf(false), pc(0), addrLatch(0) {
 }
 
 bool Cpu::step() {
-    #define JUMP_TO(target) { pc = (target); return true; }
+    #define jmp(target) { pc = (target); return true; }
     // Fetch the 2-byte instruction
     // We combine two 8-bit ROM entries into one 16-bit word
     if (acc > 4095) throw overflow_error("Acc. overflow");
@@ -117,6 +117,23 @@ bool Cpu::step() {
         ui16 arg12 = ((byte1 & 0x0F) << 8) | byte2;
 
         switch (opCodeVal) {
+            case LIR: {
+                ui8 reg = (arg12 >> 8) & 0x0F;
+                ui8 val = arg12 & 0x0F;
+                regs[reg] = val;
+                break;
+            }
+
+            case LIRP: {
+                // Note: uses mixed 4- & 8-bit args
+                ui8 regp = (arg12 >> 8) & 0x0F;
+                ui8 val = arg12 & 0xFF;
+                regs[regp] = (val >> 4) & 0x0F;
+                regs[(regp + 1) % NUM_REGS] = val & 0x0F;
+                break;
+            }
+
+
             case SRC: addrLatch = arg12; break;
 
             case ADD: {
@@ -135,10 +152,10 @@ bool Cpu::step() {
             case OR:  acc |= regs[arg12 & 0x0F]; break;
             case XOR: acc ^= regs[arg12 & 0x0F]; break;
 
-            case JSR: callStk.push(pc + 2); JUMP_TO(arg12);
-            case JZ:  if (acc == 0) JUMP_TO(arg12); break;
-            case JNZ: if (acc != 0) JUMP_TO(arg12); break;
-            case JUC: JUMP_TO(arg12);
+            case JSR: callStk.push(pc + 2); jmp(arg12);
+            case JZ:  if (acc == 0) jmp(arg12); break;
+            case JNZ: if (acc != 0) jmp(arg12); break;
+            case JUC: jmp(arg12);
             case JR: 
             {
                 int8_t offset = static_cast<int8_t>(byte2);
@@ -149,14 +166,14 @@ bool Cpu::step() {
                 // Should be 24-bit, padded to 32
                 int32_t target = static_cast<int32_t>(nextInstructionAddr) + offset;
 
-                JUMP_TO(static_cast<ui16>(target & (PROG_MEM - 1)));
+                jmp(static_cast<ui16>(target & (PROG_MEM - 1)));
             }
             default: throw runtime_error("Unknown Opcode");
         }
     }
 
     pc += 2; // 2 bytes
-    #undef JUMP_TO
+    #undef jmp
     return true;
 }
 

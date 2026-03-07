@@ -17,6 +17,8 @@ typedef uint16_t           ui16;
 typedef unsigned long long ull;
 
 enum Opcode : ui8 {
+    LIR,
+    LIRP,// wide
     SRC, // wide
     
     ADD,

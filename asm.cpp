@@ -16,6 +16,8 @@ class UnknownInstruction : public runtime_error{using runtime_error::runtime_err
 
 static Opcode getOp(string s) {
     #define ret(c, o) if (s == c) return o
+    ret("LIR", LIR);
+    ret("LIRP", LIRP);
     ret("SRC", SRC);
     ret("ADD", ADD);
     ret("SUB", SUB);
@@ -69,7 +71,7 @@ static vector<string> splitStr(const string& str) {
 }
 
 int main(int argc, char* argv[]) {
-    assert(argc == 2 | argc == 3);
+    assert(argc == 2 || argc == 3);
 
     string fname = "";
     if (argc == 2) fname = "a.out";
@@ -120,7 +122,6 @@ int main(int argc, char* argv[]) {
             // Regular instruction: [opcode:4, upper:4, mid:4, lower:4]
             ui8 opNum = static_cast<ui8>(op);
             ui8 u = 0, m = 0, l = 0;
-            assert(i.size() == 2 || i.size() == 4);
             if (i.size() == 2) {
                 // Case 1: single 12-bit arg (opcode:4, arg:12)
                 ui16 tmp = stoi(i[1]);
@@ -128,8 +129,17 @@ int main(int argc, char* argv[]) {
                 m = (tmp >> 4) & 0x0F;
                 u = (tmp >> 8) & 0x0F;
             }
+            else if (i.size() == 3) {
+                // Case 2: 4-bit + 8-bit args (opcode (LIR or LIRP):4, arg1:4, arg2:8)
+                ui8 arg1 = stoi(i[1]);
+                ui16 arg2 = stoi(i[2]);
+                u = arg1;
+                m = (arg2 >> 4) & 0x0F;
+                l = arg2 & 0x0F;
+            }
             else {
-                // Case 2: 3 4-bit args (opcode:4, arg1:4, arg2:4, arg3:4)
+                assert(i.size() == 4);
+                // Case 3: 3 4-bit args (opcode:4, arg1:4, arg2:4, arg3:4)
                 u = stoi(i[1]);
                 m = stoi(i[2]);
                 l = stoi(i[3]);
