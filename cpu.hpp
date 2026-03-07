@@ -1,68 +1,86 @@
 #pragma once
 #include <cstdint>
-#include <bitset>
 #include <vector>
+#include <stack>
+#include <string>
+#include <map>
+#include <functional>
+#include <cassert>
 
-#define MEM 256
-#define MEM_BYTES MEM/2
-#define PROG_MEM MEM
-#define WORD_SIZE 4
-#define PADDING initBitset(0)
+#define MEM 4096
+#define PROG_MEM 4096
+#define NUM_REGS 16
 
-typedef std::bitset<4>     b4;
-typedef std::bitset<8>     b8;
+typedef uint8_t            ui4;
 typedef uint8_t            ui8;
-typedef ull ull;
+typedef uint16_t           ui16;
+typedef unsigned long long ull;
 
-template <size_t N> std::bitset<N> initBitset(ull val);
+enum Opcode : ui8 {
+    LDI,
+    LDR,
+    STR,
+    SRC, // wide
 
-enum Opcode {
-    NOP, // do nothing
-    LDI, // number -> acc
-    LDR, // reg -> acc
-    LDM, // mem -> acc
-    LDC, // carry flag -> acc
-    STR, // acc -> reg
-    STM, // acc -> mem (addr set by SRC)
-    SRC, // reg pair -> mem addr latch
-    ADD, // acc += reg
-    SUB, // acc -= reg
-    AND, // acc AND reg
-    OR,  // acc OR reg
-    NOT, // acc NOT reg
-    JZ,  // jmp if acc=0
-    JSR, // jmp to subroutine
-    HALT // halt cpu
+    XCH,
+    
+    ADD,
+    SUB,
+
+    AND,
+    OR,
+    XOR,
+
+    JZ,  // wide
+    JNZ, // wide
+    JUC, // wide
+    JR,  // wide
+    JSR, // wide
+
+    EXT
 };
 
-class Instruction {
-    private:
-    public:
-    const Opcode op;
-    const b4 param;
-    Instruction(const Opcode op, const b4 param);
-    b8 instrToMem(void);
+enum ExtOpcode : ui8 {
+    STM,
+    LDM,
+
+    MOV, // wide
+
+    NOT,
+
+    XCHR,
+
+    RCR,
+    RCL,
+
+    RET,
+
+    NOP,
+    HALT
 };
 
-class Program {
-    private:
-    public:
-    std::vector<Instruction> progVec;
-    Program(void);
-    Instruction& operator[](unsigned int index);
-    ui8 size(void);
-    void addInstr(const Opcode op, const b4 param);
+struct Instruction {
+    ui8 op;    // Base Opcode
+    ui8 eOp;   // Extended Opcode (if op == EXT)
+    ui16 arg;  // Can hold 4-bit, 8-bit, or 12-bit values
 };
 
 class Cpu {
-    private:
-    public:
-    b4 ram[MEM]; // note: 4-bit words
-    b8 rom[PROG_MEM]; // 8 bit words for rom
-    ui8 pc;
-    bool cf; // carry flag
-    b4 acc;
-    Cpu(void);
-    void loadProg(Program prog);
-    void run(void);
+public:
+    Cpu();
+    
+    // Memory and Registers (using uint8_t for simplicity)
+    ui8 ram[MEM];
+    ui8 rom[MEM];
+    ui8 regs[NUM_REGS];
+
+    ui16 addrLatch;
+
+    ui8  acc;   // Accumulator
+    bool cf;    // Carry Flag
+    ui16 pc;    // Program Counter (12-bit)
+    std::stack<uint16_t> callStk;
+
+    bool step();    // Execute one instruction; returns false if a HALT occurred
+
 };
