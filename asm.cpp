@@ -16,11 +16,7 @@ class UnknownInstruction : public runtime_error{using runtime_error::runtime_err
 
 static Opcode getOp(string s) {
     #define ret(c, o) if (s == c) return o
-    ret("LDI", LDI);
-    ret("LDR", LDR);
-    ret("STR", STR);
     ret("SRC", SRC);
-    ret("XCH", XCH);
     ret("ADD", ADD);
     ret("SUB", SUB);
     ret("AND", AND);
@@ -39,8 +35,12 @@ static Opcode getOp(string s) {
 
 static ExtOpcode getExtOp(string s) {
     #define ret(c, o) if (s == c) return o
+    ret("LDI", LDI);
+    ret("LDR", LDR);
+    ret("STR", STR);
     ret("STM", STM);
     ret("LDM", LDM);
+    ret("XCH", XCH);
     ret("MOV", MOV);
     ret("NOT", NOT);
     ret("XCHR", XCHR);
@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
     for (vector<string> i : split) {
         string opStr = i[0];
         bool ext = false;
-        Opcode op = LDI; // dummy
+        Opcode op = AND; // dummy
         ExtOpcode eop = NOP; // dummy
         for (int j = 1; j < i.size(); j++) {
             if (labels.find(i[j]) != labels.end()) {

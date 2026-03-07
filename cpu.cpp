@@ -47,6 +47,16 @@ bool Cpu::step() {
         ui8 arg8       = byte2;
 
         switch (extSubType) {
+            case LDI: acc = arg8 & 0x0F; break; 
+            case LDR: acc = regs[arg8 & 0x0F]; break;
+            case STR: regs[arg8 & 0x0F] = acc; break;
+            case XCH: {
+                ui8 reg = arg8 & 0x0F;
+                ui8 tmp = regs[reg];
+                regs[reg] = acc;
+                acc = tmp;
+                break;
+            }
             case STM: ram[addrLatch & (MEM-1)] = acc; break;
             case LDM: acc = ram[addrLatch & (MEM-1)]; break;
             
@@ -107,16 +117,6 @@ bool Cpu::step() {
         ui16 arg12 = ((byte1 & 0x0F) << 8) | byte2;
 
         switch (opCodeVal) {
-            case LDI: acc = arg12 & 0x0F; break; 
-            case LDR: acc = regs[arg12 & 0x0F]; break;
-            case STR: regs[arg12 & 0x0F] = acc; break;
-            case XCH: {
-                ui8 reg = arg12 & 0x0F;
-                ui8 tmp = regs[reg];
-                regs[reg] = acc;
-                acc = tmp;
-                break;
-            }
             case SRC: addrLatch = arg12; break;
 
             case ADD: {

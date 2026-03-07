@@ -17,12 +17,7 @@ typedef uint16_t           ui16;
 typedef unsigned long long ull;
 
 enum Opcode : ui8 {
-    LDI,
-    LDR,
-    STR,
     SRC, // wide
-
-    XCH,
     
     ADD,
     SUB,
@@ -37,12 +32,19 @@ enum Opcode : ui8 {
     JR,  // wide
     JSR, // wide
 
-    EXT
+    EXT = 0xF
 };
 
 enum ExtOpcode : ui8 {
+    NOP,
+    
+    LDI,
+    LDR,
+    STR,
     STM,
     LDM,
+
+    XCH,
 
     MOV, // wide
 
@@ -57,9 +59,7 @@ enum ExtOpcode : ui8 {
 
     SHR,
     SHL,
-
-    NOP,
-    HALT
+    HALT = 0xF
 };
 
 struct Instruction {
