@@ -9,7 +9,7 @@
 
 using namespace std;
 
-#define VERBOSE 0
+#define VERBOSE 1
 
 int main(int argc, char* argv[]) {
     assert(argc == 2);

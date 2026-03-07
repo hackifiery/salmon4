@@ -33,7 +33,7 @@ static Opcode getOp(string s) {
     ret("JSR", JSR);
     ret("EXT", EXT);
     #undef ret
-    string msg = "Unknown instruction" + s;
+    string msg = "Unknown instruction " + s;
     throw UnknownInstruction(msg);
 }
 
@@ -47,10 +47,12 @@ static ExtOpcode getExtOp(string s) {
     ret("RCR", RCR);
     ret("RCL", RCL);
     ret("RET", RET);
+    ret("SHL", SHL);
+    ret("SHR", SHR);
     ret("NOP", NOP);
     ret("HALT", HALT);
     #undef ret
-    string msg = "Unknown instruction" + s;
+    string msg = "Unknown instruction " + s;
     throw UnknownInstruction(msg);
 }
 
@@ -84,6 +86,7 @@ int main(int argc, char* argv[]) {
 
     string str;
     while (getline(f, str)) {
+        if (str.empty()) continue;
         if (str.find(";") == 0) continue;
         if (str.back() == ':') {
             labels[str.substr(0, str.length()-1)] = virtPC;

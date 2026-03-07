@@ -55,6 +55,9 @@ enum ExtOpcode : ui8 {
 
     RET,
 
+    SHR,
+    SHL,
+
     NOP,
     HALT
 };

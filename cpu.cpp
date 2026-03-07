@@ -36,6 +36,7 @@ bool Cpu::step() {
     #define JUMP_TO(target) { pc = (target); return true; }
     // Fetch the 2-byte instruction
     // We combine two 8-bit ROM entries into one 16-bit word
+    if (acc > 4095) throw overflow_error("Acc. overflow");
     ui8 byte1 = rom[pc];
     ui8 byte2 = rom[pc + 1];
 
@@ -92,7 +93,10 @@ bool Cpu::step() {
                     pc = (retAddr);
                     return true;
                 } else throw underflow_error("Call stack underflow");
-
+            
+            case SHR: acc = acc >> arg8; break;
+            case SHL: acc = acc << arg8; break;
+            
             case NOP:  break;
             case HALT: 
                 return false; // Signal that execution should stop
@@ -161,7 +165,7 @@ void Cpu::printState() const {
          << " CF=" << cf << " ADDRL=" << addrLatch << "\n";
     cout << "REGS:";
     for (int i = 0; i < NUM_REGS; ++i) {
-        cout << " " << i << "=" << (int)regs[i];
+        cout << " R" << i << "=" << (int)regs[i];
     }
     cout << "\n\n";
 }
