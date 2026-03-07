@@ -9,6 +9,8 @@
 
 using namespace std;
 
+#define VERBOSE 0
+
 int main(int argc, char* argv[]) {
     assert(argc == 2);
     ifstream f(argv[1], ios::binary);
@@ -26,6 +28,6 @@ int main(int argc, char* argv[]) {
         cpu.rom[i] = bytes[i];
     }
 
-    cpu.run(true);
+    cpu.run(VERBOSE);
     return 0;
 }
