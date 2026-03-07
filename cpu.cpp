@@ -201,3 +201,13 @@ void Cpu::run(bool verbose) {
         printState();
     }
 }
+
+ui16 Cpu::getIOAddr(ui8 io_addr) {
+    return IO_START + io_addr;
+}
+
+void Cpu::writeIO(ui16 addr, ui8 val) {
+    if (addr > IO_START) return;
+    // simple display for now
+
+}

@@ -8,6 +8,8 @@
 #include <cassert>
 
 #define MEM 4096
+#define IO_MEM 8
+#define IO_START MEM-IO_MEM
 #define PROG_MEM 4096
 #define NUM_REGS 16
 
@@ -73,6 +75,9 @@ struct Instruction {
 };
 
 class Cpu {
+private:
+    ui16 getIOAddr(ui8 io_addr);
+    void writeIO(ui16 addr, ui8 val);
 public:
     Cpu();
     
@@ -91,4 +96,5 @@ public:
     bool step();
     void run(bool verbose = false);
     // debugging helpers
-    void printState() const;};
+    void printState() const;
+};
