@@ -30,6 +30,8 @@ enum Opcode : ui8 {
 
     JZ,  // wide
     JNZ, // wide
+    JC,  // wide
+    JNC, // wide
     JUC, // wide
     JR,  // wide
     JSR, // wide

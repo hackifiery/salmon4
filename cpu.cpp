@@ -33,10 +33,11 @@ Cpu::Cpu() : acc(0), cf(false), pc(0), addrLatch(0) {
 }
 
 bool Cpu::step() {
-    #define jmp(target) { pc = (target); return true; }
+    #define jmp(target) { if (target > 4095) {throw overflow_error("Invalid jump address");} pc = (target); return true; }
+    if (pc > 4095) throw overflow_error("Program counter overflow");
+    if (acc > 4095) throw overflow_error("Acc. overflow");
     // Fetch the 2-byte instruction
     // We combine two 8-bit ROM entries into one 16-bit word
-    if (acc > 4095) throw overflow_error("Acc. overflow");
     ui8 byte1 = rom[pc];
     ui8 byte2 = rom[pc + 1];
 
@@ -155,13 +156,15 @@ bool Cpu::step() {
             case JSR: callStk.push(pc + 2); jmp(arg12);
             case JZ:  if (acc == 0) jmp(arg12); break;
             case JNZ: if (acc != 0) jmp(arg12); break;
+            case JC:  if (cf == 1)  jmp(arg12); break;
+            case JNC: if (cf != 1)  jmp(arg12); break;
             case JUC: jmp(arg12);
             case JR: 
             {
                 int8_t offset = static_cast<int8_t>(byte2);
                 ui16 nextInstructionAddr = pc + 2;
 
-                assert(nextInstructionAddr <= 4095);
+                if (!(nextInstructionAddr <= 4095)) throw overflow_error("Invalid jump address");
                 
                 // Should be 24-bit, padded to 32
                 int32_t target = static_cast<int32_t>(nextInstructionAddr) + offset;

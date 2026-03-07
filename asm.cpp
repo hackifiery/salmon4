@@ -26,6 +26,8 @@ static Opcode getOp(string s) {
     ret("XOR", XOR);
     ret("JZ", JZ);
     ret("JNZ", JNZ);
+    ret("JC", JC);
+    ret("JNC", JNC);
     ret("JUC", JUC);
     ret("JR", JR);
     ret("JSR", JSR);
@@ -71,29 +73,50 @@ static vector<string> splitStr(const string& str) {
 }
 
 int main(int argc, char* argv[]) {
-    assert(argc == 2 || argc == 3);
+    assert(argc <= 4 && "Invalid number of arguments");
+    
+    string inputFname = "";
+    string outputFname = "a.out";
 
-    string fname = "";
-    if (argc == 2) fname = "a.out";
-    else fname = argv[2];
+    for (int i = 1; i < argc; ++i) {
+        string arg = argv[i];
+        if (arg == "-o") {
+            if (i + 1 < argc) {
+                outputFname = argv[++i];
+            } else {
+                cerr << "Error: -o requires an output filename." << endl;
+                return 1;
+            }
+        } else {
+            inputFname = arg;
+        }
+    }
 
     map<string, ui16> labels;
     vector<string> lines;
     vector<vector<string>> split;
     vector<array<ui8, 4>> parsed;
     
-    ifstream f(argv[1], ios::binary);
-    ofstream o(fname, ios::binary);
+    ifstream f(inputFname, ios::binary);
+    ofstream o(outputFname, ios::binary);
     unsigned int virtPC = 0; // Simulated PC for labels
 
     string str;
+    bool hasHalt = false;
     while (getline(f, str)) {
+        size_t semi = str.find(";");
+        if (semi != string::npos) str = str.substr(0, semi);
+
+        // Strip stuff
+        str.erase(0, str.find_first_not_of(" \t\r\n"));
+        str.erase(str.find_last_not_of(" \t\r\n") + 1);
+
         if (str.empty()) continue;
-        if (str.find(";") == 0) continue;
         if (str.back() == ':') {
             labels[str.substr(0, str.length()-1)] = virtPC;
             continue;
         }
+
         lines.push_back(str);
         virtPC += 2;
     }
@@ -151,6 +174,7 @@ int main(int argc, char* argv[]) {
             
             if (i.size() == 1) {
                 // Case 1: no arg (EXT:4, ext_opcode:4)
+                if (eOpNum == static_cast<ui8>(HALT)) hasHalt = true;
                 parsed.push_back({static_cast<ui8>(EXT), eOpNum, 0, 0});
             } 
             else if (i.size() == 2) {
@@ -169,6 +193,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    if (!hasHalt) cerr << "Warning: no HALT instruction found" << endl;
 
     /* debug
     for (auto& instr : parsed) {
