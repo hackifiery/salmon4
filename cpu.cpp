@@ -103,7 +103,8 @@ bool Cpu::step() {
                     callStk.pop();
                     pc = (retAddr);
                     return true;
-                } else throw underflow_error("Call stack underflow");
+                }
+                else throw underflow_error("Call stack underflow");
             
             case SHR: acc = acc >> arg8; break;
             case SHL: acc = acc << arg8; break;
