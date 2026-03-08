@@ -21,10 +21,12 @@ bool Cpu::step() {
     ui8 byte2 = rom[pc + 1];
 
     ui8 opCodeVal = (byte1 >> 4) & 0x0F;
+    // cout << (int)opCodeVal << " " << (int)byte1 << " " << (int)byte2 << endl;
 
     if (opCodeVal == EXT) {
         ui8 extSubType = byte1 & 0x0F; 
         ui8 arg8       = byte2;
+        // cout << (int)opCodeVal << (int)extSubType << (int)arg8 << endl;
 
         switch (extSubType) {
             case LDI: acc = arg8 & 0x0F; break; 
@@ -37,8 +39,12 @@ bool Cpu::step() {
                 acc = tmp;
                 break;
             }
-            case STM: ram[addrLatch & (MEM-1)] = acc; break;
-            case LDM: acc = ram[addrLatch & (MEM-1)]; break;
+            case STM:
+                if (!writeIO(addrLatch, acc)) {
+                    ram[addrLatch] = acc;
+                }
+                break;
+            case LDM: acc = ram[addrLatch]; break;
             
             case MOV:
                 {
@@ -89,8 +95,7 @@ bool Cpu::step() {
             case SHL: acc = acc << arg8; break;
             
             case NOP:  break;
-            case HALT: 
-                return false; // Signal that execution should stop
+            case HALT: return false;
             default:   throw runtime_error("Unknown Opcode");
         }
     }
@@ -106,16 +111,19 @@ bool Cpu::step() {
             }
 
             case LIRP: {
-                // Note: uses mixed 4- & 8-bit args
-                ui8 regp = (arg12 >> 8) & 0x0F;
-                ui8 val = arg12 & 0xFF;
-                regs[regp] = (val >> 4) & 0x0F;
-                regs[(regp + 1) % NUM_REGS] = val & 0x0F;
+                ui8 pairIdx = (arg12 >> 8) & 0x07; // mask to 3 bits (8 pairs max)
+                ui8 val     = arg12 & 0xFF;
+                ui8 baseReg = pairIdx * 2;
+                regs[baseReg] = (val >> 4) & 0x0F; // high nibble to even register
+                regs[baseReg + 1] = val & 0x0F; // low nibble to odd register
                 break;
             }
 
 
-            case SRC: addrLatch = arg12; break;
+            case SRC:
+                if (arg12 > MEM-1) throw overflow_error("Invalid memory address");
+                addrLatch = arg12;
+                break;
 
             case ADD: {
                 ui16 sum = acc + regs[arg12 & 0x0F];
@@ -146,7 +154,7 @@ bool Cpu::step() {
 
                 if (!(nextInstructionAddr <= 4095)) throw overflow_error("Invalid jump address");
                 
-                // Should be 24-bit, padded to 32
+                // should be 24-bit, padded to 32
                 int32_t target = static_cast<int32_t>(nextInstructionAddr) + offset;
 
                 jmp(static_cast<ui16>(target & (PROG_MEM - 1)));
@@ -182,12 +190,26 @@ void Cpu::run(bool verbose) {
     }
 }
 
-ui16 Cpu::getIOAddr(ui8 io_addr) {
-    return IO_START + io_addr;
-}
-
-void Cpu::writeIO(ui16 addr, ui8 val) {
-    if (addr > IO_START) return;
+bool Cpu::writeIO(ui16 addr, ui8 val) {
+    if (addr < IO_START) return false;
     // simple display for now
-    
+    // cout << (int)val << endl;
+    ui8 port = addr - IO_START;
+    ram[addr] = val & 0x0F;
+    switch (port) {
+        case 0:
+        case 1: break;
+
+        case 2:
+            if (val == 0) break;
+            cout << static_cast<char>((ram[IO_START] << 4) | ram[IO_START + 1]) << flush;
+            ram[IO_START] = 0;
+            ram[IO_START + 1] = 0;
+            break;
+        case 3:
+            cout << static_cast<int>(ram[IO_START + 3]) << flush;
+            ram[IO_START + 2] = 0;
+            break;
+    }
+    return true;
 }

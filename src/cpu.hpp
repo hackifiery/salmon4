@@ -9,7 +9,7 @@
 
 #define MEM 4096
 #define IO_MEM 8
-#define IO_START MEM-IO_MEM
+#define IO_START (MEM-IO_MEM)
 #define PROG_MEM 4096
 #define NUM_REGS 16
 
@@ -70,27 +70,25 @@ enum ExtOpcode : ui8 {
 
 struct Instruction {
     ui8 op;    // Base Opcode
-    ui8 eOp;   // Extended Opcode (if op == EXT)
+    ui8 eOp;   // Extended Opcode
     ui16 arg;  // Can hold 4-bit, 8-bit, or 12-bit values
 };
 
 class Cpu {
 private:
-    ui16 getIOAddr(ui8 io_addr);
-    void writeIO(ui16 addr, ui8 val);
+    bool writeIO(ui16 addr, ui8 val);
 public:
     Cpu();
     
-    // Memory and Registers (using uint8_t for simplicity)
     ui8 ram[MEM];
     ui8 rom[MEM];
     ui8 regs[NUM_REGS];
 
-    ui8  acc;   // Accumulator
+    ui8  acc;
     ui16 addrLatch;
 
-    bool cf;    // Carry Flag
-    ui16 pc;    // Program Counter (12-bit)
+    bool cf;
+    ui16 pc; // 12-bit program counter
     std::stack<uint16_t> callStk;
 
     bool step();

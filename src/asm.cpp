@@ -10,7 +10,7 @@
 #include <string>
 
 #include "cpu.hpp"
-#include "assembler.hpp"
+#include "asm.hpp"
 
 using namespace std;
 
