@@ -220,17 +220,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="cpu.cpp" />
-    <ClCompile Include="main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include=".gitignore" />
     <None Include="a.out" />
+    <None Include="Makefile" />
     <None Include="README.md" />
     <None Include="test.asm" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cpu.hpp" />
+    <ClInclude Include="src\assembler.hpp" />
+    <ClInclude Include="src\cpu.hpp" />
+    <ClInclude Include="src\runner.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\assembler.cpp" />
+    <ClCompile Include="src\cpu.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\runner.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
