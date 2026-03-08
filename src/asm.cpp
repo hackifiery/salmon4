@@ -135,7 +135,7 @@ int assembler(const vector<string>& argvvec) {
         bool ext = false;
         Opcode op = AND; // dummy
         ExtOpcode eop = NOP; // dummy
-        for (int j = 1; j < i.size(); j++) {
+        for (size_t j = 1; j < i.size(); j++) {
             if (labels.find(i[j]) != labels.end()) {
                 i[j] = to_string(labels[i[j]]);
             }
@@ -143,7 +143,7 @@ int assembler(const vector<string>& argvvec) {
         try {
             op = getOp(opStr);
         }
-        catch(UnknownInstruction) {
+        catch(UnknownInstruction const&) {
             ext = true;
             eop = getExtOp(opStr);
         }

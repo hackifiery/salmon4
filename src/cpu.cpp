@@ -5,28 +5,7 @@
 
 using namespace std;
 
-static ui8 toTwosComplement(int8_t input) {
-    if (input >= 0) {
-        return static_cast<ui8>(input) & 0x0F; // Keep it 4-bit
-    }
-
-    ui8 absVal = static_cast<ui8>(-input);
-    ui8 result = (~absVal + 1) & 0x0F;
-    
-    return result;
-}
-
-int8_t fromTwosComplement(ui8 raw_bits) {
-    // We only care about the lower 4 bits
-    ui8 val = raw_bits & 0x0F;
-    if (val & 0x08) {
-        return static_cast<int8_t>(val) - 16;
-    }
-
-    return static_cast<int8_t>(val);
-}
-
-Cpu::Cpu() : acc(0), cf(false), pc(0), addrLatch(0) {
+Cpu::Cpu() : acc(0), addrLatch(0), cf(false), pc(0) {
     for (int i = 0; i < MEM; i++)      ram[i]  = 0;
     for (int i = 0; i < PROG_MEM; i++) rom[i]  = 0;
     for (int i = 0; i < NUM_REGS; i++) regs[i] = 0;
@@ -35,7 +14,7 @@ Cpu::Cpu() : acc(0), cf(false), pc(0), addrLatch(0) {
 bool Cpu::step() {
     #define jmp(target) { if (target > 4095) {throw overflow_error("Invalid jump address");} pc = (target); return true; }
     if (pc > 4095) throw overflow_error("Program counter overflow");
-    if (acc > 4095) throw overflow_error("Acc. overflow");
+    if (acc > 15) throw overflow_error("Acc. overflow");
     // Fetch the 2-byte instruction
     // We combine two 8-bit ROM entries into one 16-bit word
     ui8 byte1 = rom[pc];
@@ -210,5 +189,5 @@ ui16 Cpu::getIOAddr(ui8 io_addr) {
 void Cpu::writeIO(ui16 addr, ui8 val) {
     if (addr > IO_START) return;
     // simple display for now
-
+    
 }

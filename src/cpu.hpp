@@ -86,9 +86,9 @@ public:
     ui8 rom[MEM];
     ui8 regs[NUM_REGS];
 
+    ui8  acc;   // Accumulator
     ui16 addrLatch;
 
-    ui8  acc;   // Accumulator
     bool cf;    // Carry Flag
     ui16 pc;    // Program Counter (12-bit)
     std::stack<uint16_t> callStk;
