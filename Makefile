@@ -1,18 +1,26 @@
 cxx = g++
 cxxflags = -std=c++20 -Wall -Wextra
 
-all: cpu.o runner asm
+target = salmon4
+objs = cpu.o runner.o asm.o main.o
+all: $(target)
 
-cpu.o: cpu.cpp
+cpu.o: src/cpu.cpp
 	$(cxx) $(cxxflags) -c $< -o $@
 
-runner: runner.cpp cpu.o
-	$(cxx) $(cxxflags) $^ -o $@
+runner.o: src/runner.cpp
+	$(cxx) $(cxxflags) -c $^ -o $@
 
-asm: asm.cpp cpu.o
-	$(cxx) $(cxxflags) $^ -o $@
+asm.o: src/asm.cpp
+	$(cxx) $(cxxflags) -c $^ -o $@
+
+main.o: src/main.cpp
+	$(cxx) $(cxxflags) -c $^ -o $@
+
+$(target): $(objs)
+	$(cxx) $(cxxflags) $(objs) -o $(target)
 
 clean:
-	rm -f *.o runner asm
+	rm -f *.o runner asm salmon4
 
 .PHONY: all
