@@ -222,17 +222,18 @@
   <ItemGroup>
     <None Include=".gitignore" />
     <None Include="a.out" />
+    <None Include="fib.asm" />
+    <None Include="LICENSE" />
     <None Include="Makefile" />
     <None Include="README.md" />
-    <None Include="test.asm" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\assembler.hpp" />
+    <ClInclude Include="src\asm.hpp" />
     <ClInclude Include="src\cpu.hpp" />
     <ClInclude Include="src\runner.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\assembler.cpp" />
+    <ClCompile Include="src\asm.cpp" />
     <ClCompile Include="src\cpu.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\runner.cpp" />
