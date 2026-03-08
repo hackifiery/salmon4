@@ -21,6 +21,11 @@ $(target): $(objs)
 	$(cxx) $(cxxflags) $(objs) -o $(target)
 
 clean:
-	rm -f *.o runner asm salmon4
+	rm -f *.o *.out salmon4
+
+test:
+	./salmon4 asm fib.asm -o fib.out
+	./salmon4 run fib.out
+	rm -f fib.out
 
 .PHONY: all
