@@ -1,9 +1,13 @@
 # SALMON-4
 A pretty basic 4-bit CPU simulated in C++, very similar Intel 4004's architecture. It has 31 total instructions (achieved using extended instructions), all of which are used. It has 4096 bytes of program memory via 12-bit indexing, and 4096 words (2048 bytes) of RAM.
 ## Building and running stuff
-To build:
+To build on linux/unix:
 ```sh
 make
+```
+To build on windows:
+```com
+msbuild
 ```
 To assemble a program:
 ```sh
