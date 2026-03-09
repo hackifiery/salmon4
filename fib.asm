@@ -14,13 +14,8 @@ JSR space
 
 STR 0
 STR 1
-XCH 1
-
-STR 15   ; tmp storage
-
 
 loop:
-    XCH 15 ; get from tmp storage
     LDR 0
     ADD 1
     XCHR 0 1
@@ -29,7 +24,6 @@ loop:
     JSR space
 
     ; check if the current value reached 13 (highest 4-bit fib number)
-    STR 15     ; tmp storage
     LIR 14 13
     SUB 14
     LIR 14 0
