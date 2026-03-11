@@ -19,7 +19,9 @@ loop:
     LDR 0
     ADD 1
 
-    STR 15
+    JC end    ; check for 4-bit overflow
+
+    STR 15    ; store in tmp reg
     ; check if the current value reached the user-inputted val
     MOV 14 2
     SUB 2
@@ -28,7 +30,7 @@ loop:
     JNC end   ; cf will be set if the subtraction result is > 0
 
     cont:
-    LDR 15
+    LDR 15    ; restore acc
     XCHR 0 1
     STR 0
     STM
