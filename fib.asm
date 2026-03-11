@@ -12,8 +12,8 @@ LDI 1
 STM
 JSR space
 
+LIR 1 0
 STR 0
-STR 1
 
 loop:
     LDR 0
