@@ -15,6 +15,7 @@
 using namespace std;
 
 class UnknownInstruction : public runtime_error{using runtime_error::runtime_error;};
+class UndefinedReference : public runtime_error{using runtime_error::runtime_error;};
 
 static Opcode getOp(string s) {
     #define ret(c, o) if (s == c) return o
@@ -201,7 +202,11 @@ int assembler(const vector<string>& argvvec) {
     }
 
     if (!hasHalt) cerr << "Warning: no HALT instruction found" << endl;
+    if (labels.find("_start") == labels.end()) throw UndefinedReference("Undefined reference to _start");
 
+    assert(labels["start"] <= 4095);
+    o << static_cast<char>((labels["_start"] >> 8) & 0xFF);
+    o << static_cast<char>(labels["_start"] & 0xFF);
     for (array<ui8, 4> i : parsed) {
         ui8 byte1 = static_cast<ui8>(((i[0] & 0x0F) << 4) | (i[1] & 0x0F));
         ui8 byte2 = static_cast<ui8>(((i[2] & 0x0F) << 4) | (i[3] & 0x0F));

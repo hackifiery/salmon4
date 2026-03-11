@@ -93,7 +93,7 @@ public:
     std::stack<uint16_t> callStk;
 
     bool step();
-    void run(bool verbose = false);
+    void run(bool verbose = false, ui16 pcStart = 0);
     // debugging helpers
     void printState() const;
 };

@@ -42,11 +42,11 @@ int runner(const vector<string>& argvvec) {
     }
 
     Cpu cpu = Cpu();
-    for (int i = 0; i < (int)bytes.size(); i++) {
+    for (int i = 2; i < (int)bytes.size(); i++) {
         assert(i < MEM);
-        cpu.rom[i] = bytes[i];
+        cpu.rom[i-2] = bytes[i];
     }
 
-    cpu.run(verbose);
+    cpu.run(verbose, (bytes[0] << 8) | bytes[1]);
     return 0;
 }

@@ -182,8 +182,9 @@ void Cpu::printState() const {
     cout << "\n\n";
 }
 
-void Cpu::run(bool verbose) {
+void Cpu::run(bool verbose, ui16 pcStart) {
     bool cont = true;
+    pc = pcStart;
     while (cont) {
         if (verbose) printState();
         cont = step();
