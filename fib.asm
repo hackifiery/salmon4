@@ -2,13 +2,13 @@
 
 SRC 4091 ; port 3 (integer printing port)
 
+JSR getch; get user input
+
 STM      ; initial 0
 JSR space
 
-; print the first two 1's
+; print the first 1
 LDI 1
-STM
-JSR space
 STM
 JSR space
 
@@ -18,19 +18,26 @@ STR 1
 loop:
     LDR 0
     ADD 1
+
+    STR 15
+    ; check if the current value reached the user-inputted val
+    MOV 14 2
+    SUB 2
+    LIR 2 0
+    JZ cont
+    JNC end   ; cf will be set if the subtraction result is > 0
+
+    cont:
+    LDR 15
     XCHR 0 1
     STR 0
     STM
     JSR space
+    JUC loop
 
-    ; check if the current value reached 13 (highest 4-bit fib number)
-    LIR 14 13
-    SUB 14
-    LIR 14 0
-    JNZ loop
-    
-JSR newline
-HALT
+end:
+    JSR newline
+    HALT
 
 ; prints a space
 space:
@@ -83,4 +90,13 @@ newline:
 
     SRC 4091  ; restore port addr
 
+    RET
+
+getch:
+    STR 15    ; tmp reg
+    SRC 4092  ; port 4 (integer input)
+    LDM       ; input
+    STR 14    ; put it in R14
+    LDR 15    ; restore acc
+    SRC 4091  ; restore port addr
     RET

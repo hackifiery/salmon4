@@ -44,7 +44,11 @@ bool Cpu::step() {
                     ram[addrLatch] = acc;
                 }
                 break;
-            case LDM: acc = ram[addrLatch]; break;
+            case LDM: 
+                if (!readIO(addrLatch)) {
+                     acc = ram[addrLatch];
+                }
+                break;
             
             case MOV:
                 {
@@ -211,5 +215,34 @@ bool Cpu::writeIO(ui16 addr, ui8 val) {
             ram[IO_START + 2] = 0;
             break;
     }
+    return true;
+}
+
+bool Cpu::readIO(ui16 addr) {
+    if (addr < IO_START) return false;
+
+    ui8 port = addr - IO_START;
+    switch (port) {
+        case 4:
+        {
+            int input;
+            cin >> input;
+            ram[addr] = static_cast<ui8>(input) & 0x0F;
+            break;
+        }
+
+        case 5:
+        {
+            char input;
+            cin >> input;
+            ram[addr] = static_cast<ui8>(static_cast<ui8>(input) & 0x0F);
+            break;
+        }
+        
+        case 6: // TODO: add keyboard drivers
+            ram[addr] = 0; 
+            break;
+    }
+    acc = ram[addr];
     return true;
 }

@@ -77,6 +77,7 @@ struct Instruction {
 class Cpu {
 private:
     bool writeIO(ui16 addr, ui8 val);
+    bool readIO (ui16 addr);
 public:
     Cpu();
     
