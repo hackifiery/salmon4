@@ -143,7 +143,7 @@ int assembler(const vector<string>& argvvec) {
             }
             if (i[j].front() == '\'') {
                 //cout << i[j] << endl << i[j].front() << endl << i[j].back() << endl << i[j].length()<<endl;
-                if (i[j].back() != '\'' || !(i[j].length() == 3 || i[j].length() == 4)) throw SyntaxError("Expected a closing `'`");
+                if (i[j].back() != '\'' || !(i[j].length() == 3 || (i[j][1] == '\\' && i[j].length() == 4))) throw SyntaxError("Expected a closing `'`");
                 #define getEsc(ch, rep) do {size_t escIdx = i[j].find(ch);\
                 if (escIdx != string::npos) i[j].replace(1, 1, rep);} while(0)
                 
