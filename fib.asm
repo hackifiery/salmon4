@@ -4,7 +4,7 @@
 space:
     STR 15    ; tmp reg
     LDI 0     ; clear acc
-    LIRP 6 32 ; RP7 = R12 and R13, 32 = space in ascii
+    LIRP 6 '\s' ; RP7 = R12 and R13, \s = space
 
     SRC 4088  ; port 0 (ascii printing nibble 0)
     XCH 12
@@ -30,7 +30,7 @@ space:
 newline:
     STR 15    ; tmp reg
     LDI 0     ; clear acc
-    LIRP 6 10 ; RP7 = R12 and R13, 10 = newline in ascii
+    LIRP 6 '\n' ; RP7 = R12 and R13, \n = newline
 
     SRC 4088  ; port 0 (ascii printing nibble 0)
     XCH 12

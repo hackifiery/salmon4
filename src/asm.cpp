@@ -16,6 +16,7 @@ using namespace std;
 
 class UnknownInstruction : public runtime_error{using runtime_error::runtime_error;};
 class UndefinedReference : public runtime_error{using runtime_error::runtime_error;};
+class SyntaxError        : public runtime_error{using runtime_error::runtime_error;};
 
 static Opcode getOp(string s) {
     #define ret(c, o) if (s == c) return o
@@ -140,6 +141,20 @@ int assembler(const vector<string>& argvvec) {
             if (labels.find(i[j]) != labels.end()) {
                 i[j] = to_string(labels[i[j]]);
             }
+            if (i[j].front() == '\'') {
+                //cout << i[j] << endl << i[j].front() << endl << i[j].back() << endl << i[j].length()<<endl;
+                if (i[j].back() != '\'' || !(i[j].length() == 3 || i[j].length() == 4)) throw SyntaxError("Expected a closing `'`");
+                #define getEsc(ch, rep) do {size_t escIdx = i[j].find(ch);\
+                if (escIdx != string::npos) i[j].replace(1, 1, rep);} while(0)
+                
+                getEsc("\\n", "\n");
+                getEsc("\\s", " ");
+
+                //assert(i[j].length() == 3);
+                i[j] = to_string(static_cast<ui8>(i[j].substr(1, 1)[0]));
+
+                #undef getEsc
+            }
         }
         try {
             op = getOp(opStr);
@@ -204,7 +219,7 @@ int assembler(const vector<string>& argvvec) {
     if (!hasHalt) cerr << "Warning: no HALT instruction found" << endl;
     if (labels.find("_start") == labels.end()) throw UndefinedReference("Undefined reference to _start");
 
-    assert(labels["start"] <= 4095);
+    assert(labels["_start"] <= 4095);
     o << static_cast<char>((labels["_start"] >> 8) & 0xFF);
     o << static_cast<char>(labels["_start"] & 0xFF);
     for (array<ui8, 4> i : parsed) {
