@@ -98,6 +98,7 @@ int assembler(const vector<string>& argvvec) {
     }
 
     map<string, ui16> labels;
+    map<string, string> macros;
     vector<string> lines;
     vector<vector<string>> split;
     vector<array<ui8, 4>> parsed;
@@ -125,12 +126,32 @@ int assembler(const vector<string>& argvvec) {
             labels[str.substr(0, str.length()-1)] = virtPC;
             continue;
         }
+        if (str.find(".macro ") == 0 || str.find(".m ") == 0) virtPC -= 2;
 
         lines.push_back(str);
         virtPC += 2;
     }
 
-    for (string i : lines) split.push_back(splitStr(i));
+    for (string i : lines) {
+        vector<string> s = splitStr(i);
+        // for (auto i : s) cout << i << endl;
+        if (s[0] == ".macro" || s[0] == ".m") {
+            string macroExpansion = "";
+            // TODO: make macros be multi-token, only single tokens for now
+            // for (int i = 2; i < s.size(); i++) macroExpansion.append(s[i]);
+            macroExpansion = s[2];
+            macros[s[1]] = macroExpansion;
+            // cout << "added macro " << s[1] << " = " << macroExpansion << endl;
+            continue;
+        }
+        for (int i = 0; i < s.size(); i++) {
+            if (macros.find(s[i]) != macros.end()) {
+                // cout << s[i] << " replaced with " << macros[s[i]] << endl;
+                s[i] = macros[s[i]];
+            }
+        }
+        split.push_back(s);
+    }
 
     for (vector<string> i : split) {
         string opStr = i[0];

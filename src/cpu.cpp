@@ -234,6 +234,7 @@ bool Cpu::readIO(ui16 addr) {
 
         case 5:
         {
+            // TODO: make it 1 byte wide
             char input;
             cin >> input;
             ram[addr] = static_cast<ui8>(static_cast<ui8>(input) & 0x0F);
