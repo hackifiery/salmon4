@@ -55,21 +55,21 @@ newline:
     XCH 15    ; restore acc
     LIR 15 0  ; reset R15
 
-    SRC 4091  ; restore port addr
+    SRC p3    ; restore port addr
 
     RET
 
 getch:
     STR 15    ; tmp reg
-    SRC 4092  ; port 4 (integer input)
+    SRC p4    ; port 4 (integer input)
     LDM       ; input
     STR 14    ; put it in R14
     LDR 15    ; restore acc
-    SRC 4091  ; restore port addr
+    SRC p3    ; restore port addr
     RET
 
 _start:
-    SRC 4091  ; port 3 (integer printing port)
+    SRC p3    ; port 3 (integer printing port)
 
     JSR getch ; get user input
 
